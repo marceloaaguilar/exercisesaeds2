@@ -1,7 +1,38 @@
+package atividadeLista;
 
 import java.io.*;
 import java.util.Scanner;
 
+class ArquivoTextoEscrita {
+	private BufferedWriter saida;
+
+	ArquivoTextoEscrita(String nomeArquivo) {
+		try {
+			saida = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(nomeArquivo), "UTF-8"));
+		} catch (UnsupportedEncodingException excecao) {
+			System.out.println(excecao.getMessage());
+		} catch (IOException excecao) {
+			System.out.println("Erro na abertura do arquivo de escrita: " + excecao);
+		}
+	}
+
+	public void fecharArquivo() {
+		try {
+			saida.close();
+		} catch (IOException excecao) {
+			System.out.println("Erro no fechamento do arquivo de escrita: " + excecao);
+		}
+	}
+
+	public void escrever(String textoEntrada) {
+		try {
+			saida.write(textoEntrada);
+			saida.newLine();
+		} catch (IOException excecao) {
+			System.out.println("Erro de entrada/saída " + excecao);
+		}
+	}
+}
 
 class ArquivoTextoLeitura {
 	private BufferedReader entrada;
@@ -44,109 +75,119 @@ class No {
 	private Jogador item;
 	private No esquerda;
 	private No direita;
-	
+
 	public No() {
-		
+
 		item = new Jogador();
 		esquerda = null;
 		direita = null;
 	}
-	
+
 	public No(Jogador registro) {
-		
+
 		item = registro;
 		esquerda = null;
 		direita = null;
 	}
-	
+
 	public Jogador getItem() {
 		return item;
 	}
+
 	public void setItem(Jogador item) {
 		this.item = item;
 	}
-	
+
 	public No getEsquerda() {
 		return esquerda;
 	}
+
 	public void setEsquerda(No esquerda) {
 		this.esquerda = esquerda;
 	}
-	
+
 	public No getDireita() {
 		return direita;
 	}
+
 	public void setDireita(No direita) {
 		this.direita = direita;
 	}
 }
 
 class ABB {
+	int comparacao;
+	
+	public int getComparacao() {
+		return comparacao;
+	}
+
+	public void setComparacao(int comparacao) {
+		this.comparacao = comparacao;
+	}
 
 	private No raiz;
-	
+
 	public ABB() {
-		
+
 		raiz = null;
 	}
-	
+
 	public Jogador pesquisar(String nome) {
 		return pesquisar(this.raiz, nome);
 	}
-	
-	private Jogador pesquisar(No raizSubarvore, String nome)
-		{
-	
+
+	private Jogador pesquisar(No raizSubarvore, String nome) {
+
 		if (raizSubarvore == null) {
+			comparacao++;
 			System.out.println("NAO");
 			return null;
 		}
-		
-		else if  (nome.compareTo(raizSubarvore.getItem().getNome()) > 0) {
+
+		else if (nome.compareTo(raizSubarvore.getItem().getNome()) > 0) {
+			comparacao++;
 			System.out.print(raizSubarvore.getItem().getNome() + " ");
 			return pesquisar(raizSubarvore.getDireita(), nome);
 		}
-		
-		else if (nome.compareTo(raizSubarvore.getItem().getNome()) < 0){
+
+		else if (nome.compareTo(raizSubarvore.getItem().getNome()) < 0) {
+			comparacao++;
 			System.out.print(raizSubarvore.getItem().getNome() + " ");
 			return pesquisar(raizSubarvore.getEsquerda(), nome);
 		}
-		
-		else 
+
+		else {
+			comparacao++;
 			System.out.print(raizSubarvore.getItem().getNome());
 			System.out.println(" SIM");
-			return raizSubarvore.getItem();
-	
+		}
+		return raizSubarvore.getItem();
+
 	}
-	
+
 	public void inserir(Jogador novo) throws Exception {
 		this.raiz = inserir(this.raiz, novo);
 	}
-	
-	private No inserir(No raizSubarvore, Jogador novo) throws Exception{
-		String nomeJogador = novo.getNome();		
-		
+
+	private No inserir(No raizSubarvore, Jogador novo) throws Exception {
+		String nomeJogador = novo.getNome();
+
 		if (raizSubarvore == null) {
 			raizSubarvore = new No(novo);
-		}
-		else if (novo.getNome() == raizSubarvore.getItem().getNome())
+		} else if (novo.getNome() == raizSubarvore.getItem().getNome())
 			throw new Exception("Não foi possível inserir o item na árvore: chave já inseriada anteriormente!");
 		else if (nomeJogador.compareTo(raizSubarvore.getItem().getNome()) < 0)
 			raizSubarvore.setEsquerda(inserir(raizSubarvore.getEsquerda(), novo));
 		else
 			raizSubarvore.setDireita(inserir(raizSubarvore.getDireita(), novo));
-			
+
 		return raizSubarvore;
 	}
-	
-	
-	
-	
+
 }
 
-
 class Jogador {
-
 	private int id, altura, peso, anoNascimento;
 	private String nome, universidade, cidadeNascimento, estadoNascimento;
 
@@ -203,8 +244,6 @@ class Jogador {
 			this.estadoNascimento = "nao informado";
 		}
 	}
-	
-
 
 	public Jogador clone() {
 		Jogador jogador2 = new Jogador();
@@ -274,36 +313,31 @@ class Jogador {
 	public void setUniversidade(String universidade) {
 		this.universidade = universidade;
 	}
-	
-
 
 }
 
 public class Main {
-
+	
 	public static void main(String[] args) throws Exception {
-
+		long start = System.currentTimeMillis();
 		Scanner s = new Scanner(System.in);
 		MyIO.setCharset("UTF-8");
 		int contador = 0;
 		int linha = 0;
 		int qtdeJogadores;
 		int i;
-//		double mediaAlturaFilaJogador;
-
+		int comparacao = 0;
 		Jogador[] pessoa = new Jogador[4000]; // meu vetor de jogadores
 		String str;
 		String diretorio;
 		String id;
-		int idLista;
-		String comandoLista;
-		String listaComando[];
 		ABB arvore;
 		int posicao;
+		
 
 		arvore = new ABB();
 
-		diretorio = "/tmp/jogadores.txt";
+		diretorio = "jogadores.txt";
 
 		ArquivoTextoLeitura leitura = new ArquivoTextoLeitura(diretorio);
 
@@ -313,8 +347,8 @@ public class Main {
 
 		while (str != null) {
 			
+			
 			Jogador jogador = new Jogador();
-
 			jogador.lerJogador(str);
 
 			pessoa[contador++] = jogador;
@@ -322,34 +356,28 @@ public class Main {
 		}
 
 		leitura.fecharArquivo();
-
+		
 		id = s.nextLine();
 
-			while(!id.equals("FIM")) {
-				linha = Integer.parseInt(id);	
-				arvore.inserir(pessoa[linha]);;	
-				id = s.nextLine();
-			}		
-			
-		// aqui escrever o codigo para realizar a segunda parte da questao
+		while (!id.equals("FIM")) {
+			linha = Integer.parseInt(id);
+			arvore.inserir(pessoa[linha]);
+			id = s.nextLine();
 		
-		String nomeJogador = s.nextLine();
-		while (! nomeJogador.equals("FIM")) {
-			// String nomeJogador = pilhaJogador.consultarTopo().getNome();
+		}
 
+		String nomeJogador = s.nextLine();
+		while (!nomeJogador.equals("FIM")) {
 			arvore.pesquisar(nomeJogador);
 			nomeJogador = s.nextLine();
-
 			
-		
-			
-
 		}
-		
-	//lista.imprimir();
-
-	
-
+		String arquivoLog = "matrícula_arvoreBinaria.txt";
+		ArquivoTextoEscrita log = new ArquivoTextoEscrita(arquivoLog);
+		long end = System.currentTimeMillis();
+		long elapsed_time = end - start;
+		log.escrever( "767383 \t" + elapsed_time + "ms" + "\t" + arvore.getComparacao() + " comparações" + "\t");
+		log.fecharArquivo();
 	}
 
 }
